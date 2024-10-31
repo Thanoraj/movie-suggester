@@ -6,6 +6,7 @@ import (
 
 	"github.com/Thanoraj/movie-suggester/backend/database"
 	"github.com/Thanoraj/movie-suggester/backend/models"
+	"github.com/Thanoraj/movie-suggester/backend/services"
 	"github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -67,7 +68,20 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(user)
+	fmt.Println(string(user.Id))
+
+	token, err := services.GetUserToken(string(user.Id))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Could not login the user",
+			"success": false,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"message": "Logged in successfully",
+		"success": true,
+		"token":   token,
+	})
 }
 
 // Helper function to check for duplicate email error\
