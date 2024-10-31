@@ -5,16 +5,26 @@ import (
 
 	"github.com/Thanoraj/movie-suggester/backend/controllers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func InitApp()  {
+func InitApp() {
 
 	app := fiber.New()
+
+	app.Use(
+		cors.New(
+			cors.Config{
+				AllowCredentials: true,
+				AllowOrigins:     "http://localhost:8000",
+			},
+		),
+	) // List allowed origins here
 
 	createRoutes(app)
 
 	log.Fatal(app.Listen(":8000"))
-	
+
 }
 
 func createRoutes(app *fiber.App) {

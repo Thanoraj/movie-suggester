@@ -2,14 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"strings"
+	"time"
 
 	"github.com/Thanoraj/movie-suggester/backend/database"
 	"github.com/Thanoraj/movie-suggester/backend/models"
 	"github.com/Thanoraj/movie-suggester/backend/services"
-	"github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func Home(c *fiber.Ctx) error {
@@ -23,24 +21,35 @@ func RegisterUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	password, _ := bcrypt.GenerateFromPassword([]byte(body["password"]), 14)
-
+	password, _ := services.HashPassword(body["password"])
 	user := models.User{
 		Name:     body["name"],
 		Email:    body["email"],
 		Password: password,
 	}
 
-	result := database.DB.Create(&user)
-	if result.Error != nil {
-		if isDuplicateEmailError(result.Error) {
-			return c.Status(fiber.StatusBadRequest).SendString("Email already exist")
+	err := database.WriteUserData(&user)
+
+	if err != nil {
+		switch err.Error() {
+		case "email already exist":
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"success": false,
+				"message": err.Error(),
+			})
+		default:
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"message": err.Error(),
+			})
 		}
-		fmt.Println(result.Error)
-		return c.Status(500).SendString("Error creating user in the database")
+
 	}
 
-	return c.JSON(user)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"message": "user created successfully",
+	})
 }
 
 func LoginUser(c *fiber.Ctx) error {
@@ -56,44 +65,40 @@ func LoginUser(c *fiber.Ctx) error {
 
 	if user.Id == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "User not found",
+			"message": "user not found",
 			"success": false,
 		})
 	}
 
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(body["password"])); err != nil {
+	if err := services.ComparePasswords(user.Password, body["password"]); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "In correct password",
+			"message": "in correct password",
 			"success": false,
 		})
 	}
 
 	fmt.Println(string(user.Id))
 
-	token, err := services.GetUserToken(string(user.Id))
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	token, err := services.GetUserToken(string(user.Id), expirationTime)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Could not login the user",
+			"message": "could not login the user",
 			"success": false,
 		})
 	}
-	return c.JSON(fiber.Map{
-		"message": "Logged in successfully",
-		"success": true,
-		"token":   token,
-	})
-}
-
-// Helper function to check for duplicate email error\
-func isDuplicateEmailError(err error) bool {
-	// GORM wraps errors, so we need to unwrap
-	if mysqlErr, ok := err.(*mysql.MySQLError); ok {
-		switch mysqlErr.Number {
-		case 1062: // MySQL code for duplicate entry
-			return strings.Contains(err.Error(), "Duplicate entry") && strings.Contains(err.Error(), "email")
-		default:
-			return false
-		}
+	cookie := fiber.Cookie{
+		Name:     "User token",
+		Value:    token,
+		Expires:  expirationTime,
+		HTTPOnly: true,
 	}
-	return false
+
+	c.Cookie(&cookie)
+
+	return c.JSON(fiber.Map{
+		"message": "logged in successfully",
+		"success": true,
+	})
 }
