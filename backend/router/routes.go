@@ -37,5 +37,5 @@ func createRoutes(app *fiber.App) {
 	api.Post("/logout", controllers.LogoutUser)
 
 	api.Post("/suggestion", controllers.GetSuggestion)
-
+	api.Post("/movie", controllers.GetMovie)
 }

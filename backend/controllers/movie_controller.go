@@ -32,3 +32,25 @@ func GetSuggestion(c *fiber.Ctx) error {
 		"result":  response,
 	})
 }
+
+func GetMovie(c *fiber.Ctx) error {
+	var body map[string]string
+
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "invalid request format",
+			"success": false,
+		})
+	}
+
+	movie, err := services.GetMovieData(body["title"], body["year"])
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to get the movie data",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(movie)
+}

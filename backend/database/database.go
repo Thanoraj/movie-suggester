@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Thanoraj/movie-suggester/backend/config"
 	"github.com/Thanoraj/movie-suggester/backend/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -13,7 +14,7 @@ var DB *gorm.DB
 
 func InitDB() {
 	// Define the database connection string
-	dsn := "root:pass@1108@/movie_suggester_db"
+	dsn := fmt.Sprintf("%s:%s@/%s", config.DB_USERNAME, config.DB_PASSWORD, config.DB_NAME)
 
 	// Open a database connection
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
