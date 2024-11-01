@@ -29,9 +29,13 @@ func InitApp() {
 
 func createRoutes(app *fiber.App) {
 	app.Get("/", controllers.Home)
-	app.Post("/api/v1/register", controllers.RegisterUser)
-	app.Post("/api/v1/login", controllers.LoginUser)
-	app.Get("/api/v1/user", controllers.GetUser)
-	app.Post("/api/v1/logout", controllers.LogoutUser)
-	app.Get("/api/v1/suggestion", controllers.GetSuggestion)
+
+	api := app.Group("/api/v1")
+	api.Post("/register", controllers.RegisterUser)
+	api.Post("/login", controllers.LoginUser)
+	api.Get("/user", controllers.GetUser)
+	api.Post("/logout", controllers.LogoutUser)
+
+	api.Post("/suggestion", controllers.GetSuggestion)
+
 }

@@ -1,4 +1,4 @@
-package services
+package config
 
 import (
 	"log"
@@ -9,6 +9,7 @@ import (
 
 var JWT_KEY []byte
 var OPENAI_API_KEY string
+var GEMINI_API_KEY string
 
 func InitEnvVariables() {
 	err := godotenv.Load()
@@ -27,4 +28,11 @@ func InitEnvVariables() {
 		log.Fatal("OPENAI_API_KEY environment variable not set")
 	}
 	OPENAI_API_KEY = key
+
+	key = os.Getenv("GEMINI_API_KEY")
+	if key == "" {
+		log.Fatal("GEMINI_API_KEY environment variable not set")
+	}
+	GEMINI_API_KEY = key
+
 }

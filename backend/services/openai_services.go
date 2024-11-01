@@ -8,10 +8,11 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Thanoraj/movie-suggester/backend/config"
 	"github.com/Thanoraj/movie-suggester/backend/models"
 )
 
-func GetSuggestion() {
+func GetOpenaiSuggestion() {
 
 	client := &http.Client{}
 	url := "https://api.openai.com/v1/chat/completions"
@@ -39,7 +40,7 @@ func GetSuggestion() {
 
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", OPENAI_API_KEY))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.OPENAI_API_KEY))
 
 	// Execute the request
 	resp, err := client.Do(req)
@@ -47,20 +48,23 @@ func GetSuggestion() {
 		log.Fatalf("Error making request: %v", err)
 	}
 	defer resp.Body.Close()
+	fmt.Println(resp.Body)
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalf("Error reading response: %v", err)
 	}
 
+	fmt.Println(respBody)
 	var openAIResp models.OpenAIResponse
 	if err := json.Unmarshal(respBody, &openAIResp); err != nil {
 		log.Fatalf("Error decoding response: %v", err)
 	}
 
+	fmt.Println(openAIResp)
 	// Print the response content
 	if len(openAIResp.Choices) > 0 {
-		fmt.Println("OpenAI Response:", openAIResp.Choices[0].Message.Content)
+		fmt.Println("OpenAI Response:", openAIResp, openAIResp.Choices[0].Message.Content)
 	} else {
 		fmt.Println("No response from OpenAI.")
 	}

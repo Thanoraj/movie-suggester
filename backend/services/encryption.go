@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Thanoraj/movie-suggester/backend/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -15,13 +16,13 @@ func GetUserToken(userID uint, expirationTime time.Time) (string, error) {
 		Issuer:    strconv.Itoa(int(userID)),
 	})
 
-	return token.SignedString(JWT_KEY)
+	return token.SignedString(config.JWT_KEY)
 
 }
 
 func GetUserIDFromToken(tokenString string) (uint, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return JWT_KEY, nil
+		return config.JWT_KEY, nil
 	})
 
 	if err != nil {
