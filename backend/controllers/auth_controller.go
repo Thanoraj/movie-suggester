@@ -10,6 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const userToken string = "USER_TOKEN"
+
 func Home(c *fiber.Ctx) error {
 	return c.SendString("Hello world! 👋")
 }
@@ -81,7 +83,7 @@ func LoginUser(c *fiber.Ctx) error {
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 
-	token, err := services.GetUserToken(string(user.Id), expirationTime)
+	token, err := services.GetUserToken(user.Id, expirationTime)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "could not login the user",
@@ -89,7 +91,7 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 	cookie := fiber.Cookie{
-		Name:     "User token",
+		Name:     userToken,
 		Value:    token,
 		Expires:  expirationTime,
 		HTTPOnly: true,
@@ -101,4 +103,23 @@ func LoginUser(c *fiber.Ctx) error {
 		"message": "logged in successfully",
 		"success": true,
 	})
+}
+
+func GetUser(c *fiber.Ctx) error {
+	cookie := c.Cookies(userToken)
+
+	userID, err := services.GetUserIDFromToken(cookie)
+
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+		})
+	}
+	var user models.User
+
+	database.GetUserWithID(userID, &user)
+
+	return c.JSON(user)
+
 }
