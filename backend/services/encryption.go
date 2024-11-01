@@ -15,13 +15,13 @@ func GetUserToken(userID uint, expirationTime time.Time) (string, error) {
 		Issuer:    strconv.Itoa(int(userID)),
 	})
 
-	return token.SignedString(JwtKey)
+	return token.SignedString(JWT_KEY)
 
 }
 
 func GetUserIDFromToken(tokenString string) (uint, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return JwtKey, nil
+		return JWT_KEY, nil
 	})
 
 	if err != nil {
