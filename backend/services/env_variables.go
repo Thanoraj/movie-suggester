@@ -9,7 +9,7 @@ import (
 
 var JwtKey []byte
 
-func init() {
+func InitEnvVariables() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("No .env file found")

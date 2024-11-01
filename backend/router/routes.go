@@ -32,4 +32,5 @@ func createRoutes(app *fiber.App) {
 	app.Post("/api/v1/register", controllers.RegisterUser)
 	app.Post("/api/v1/login", controllers.LoginUser)
 	app.Get("/api/v1/user", controllers.GetUser)
+	app.Post("/api/v1/logout", controllers.LogoutUser)
 }

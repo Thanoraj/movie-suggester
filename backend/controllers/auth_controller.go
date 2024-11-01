@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Thanoraj/movie-suggester/backend/database"
@@ -20,7 +21,10 @@ func RegisterUser(c *fiber.Ctx) error {
 	var body map[string]string
 
 	if err := c.BodyParser(&body); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "invalid request format",
+			"success": false,
+		})
 	}
 
 	password, _ := services.HashPassword(body["password"])
@@ -58,7 +62,10 @@ func LoginUser(c *fiber.Ctx) error {
 	var body map[string]string
 
 	if err := c.BodyParser(&body); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "invalid request format",
+			"success": false,
+		})
 	}
 
 	var user models.User
@@ -79,7 +86,7 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println(string(user.Id))
+	fmt.Println(strconv.Itoa(int(user.Id)))
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 
@@ -90,19 +97,30 @@ func LoginUser(c *fiber.Ctx) error {
 			"success": false,
 		})
 	}
-	cookie := fiber.Cookie{
-		Name:     userToken,
-		Value:    token,
-		Expires:  expirationTime,
-		HTTPOnly: true,
+
+	clientType := c.Get("X-Client-Type")
+	if clientType == "web" {
+		cookie := fiber.Cookie{
+			Name:     userToken,
+			Value:    token,
+			Expires:  expirationTime,
+			HTTPOnly: true,
+		}
+
+		c.Cookie(&cookie)
+
+		return c.JSON(fiber.Map{
+			"message": "user logged in successfully",
+			"success": true,
+		})
 	}
 
-	c.Cookie(&cookie)
-
 	return c.JSON(fiber.Map{
-		"message": "logged in successfully",
+		"message": "user logged in successfully",
 		"success": true,
+		"token":   token,
 	})
+
 }
 
 func GetUser(c *fiber.Ctx) error {
@@ -121,5 +139,23 @@ func GetUser(c *fiber.Ctx) error {
 	database.GetUserWithID(userID, &user)
 
 	return c.JSON(user)
+
+}
+
+func LogoutUser(c *fiber.Ctx) error {
+
+	cookie := fiber.Cookie{
+		Name:     userToken,
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "user logged out successfully",
+		"success": true,
+	})
 
 }
