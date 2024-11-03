@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Thanoraj/movie-suggester/backend/database"
@@ -52,10 +53,42 @@ func RegisterUser(c *fiber.Ctx) error {
 
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	token, err := services.GetUserToken(user.Id, expirationTime)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "could not login the user",
+			"success": false,
+		})
+	}
+
+	clientType := c.Get("X-Client-Type")
+	if clientType == "web" {
+		cookie := fiber.Cookie{
+			Name:     userToken,
+			Value:    token,
+			Expires:  expirationTime,
+			HTTPOnly: true,
+		}
+
+		c.Cookie(&cookie)
+
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"success": true,
+			"message": "user created successfully",
+			"result":  user,
+		})
+	}
+
+	return c.JSON(fiber.Map{
 		"message": "user created successfully",
+		"success": true,
+		"result":  user,
+		"token":   token,
 	})
+
 }
 
 func LoginUser(c *fiber.Ctx) error {
@@ -112,22 +145,34 @@ func LoginUser(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"message": "user logged in successfully",
 			"success": true,
+			"user":    user,
 		})
 	}
 
 	return c.JSON(fiber.Map{
 		"message": "user logged in successfully",
 		"success": true,
+		"result":  user,
 		"token":   token,
 	})
 
 }
 
 func GetUser(c *fiber.Ctx) error {
-	cookie := c.Cookies(userToken)
+	authorization := c.Get("Authorization")
+	words := strings.Fields(authorization) // Splits by any whitespace
 
-	userID, err := services.GetUserIDFromToken(cookie)
+	if len(words) != 2 {
+		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "Insert the token in 'Bearer <user_token>' format",
+		})
+	}
 
+	token := words[1]
+
+	userID, err := services.GetUserIDFromToken(token)
+	fmt.Println(userID)
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -138,12 +183,36 @@ func GetUser(c *fiber.Ctx) error {
 
 	database.GetUserWithID(userID, &user)
 
-	return c.JSON(user)
+	if user.Id == 0 {
+
+		removeCookie(c)
+
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "user not found",
+			"success": false,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "fetched user successfully",
+		"success": true,
+		"result":  user,
+	})
 
 }
 
 func LogoutUser(c *fiber.Ctx) error {
 
+	removeCookie(c)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "user logged out successfully",
+		"success": true,
+	})
+
+}
+
+func removeCookie(c *fiber.Ctx) {
 	cookie := fiber.Cookie{
 		Name:     userToken,
 		Value:    "",
@@ -152,10 +221,4 @@ func LogoutUser(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&cookie)
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "user logged out successfully",
-		"success": true,
-	})
-
 }

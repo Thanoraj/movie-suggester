@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/failures/failure.dart';
 import 'package:frontend/core/theme/app_palette.dart';
-import 'package:frontend/features/auth/view/pages/signin_page.dart';
 import 'package:frontend/features/auth/view/widgets/custom_filed.dart';
 import 'package:frontend/features/auth/view/widgets/gradient_button.dart';
+import 'package:frontend/features/auth/view_model/auth_view_model.dart';
+import 'package:frontend/features/home/view/pages/home_page.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class SignInPage extends ConsumerStatefulWidget {
+  const SignInPage({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  ConsumerState<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
-  final TextEditingController nameController = TextEditingController();
+class _SignInPageState extends ConsumerState<SignInPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -20,7 +22,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   void dispose() {
-    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -28,6 +29,25 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authViewModelProvider, (previous, next) {
+      next?.when(
+          data: (data) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
+          error: (error, stackTrace) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text((error as Failure).message)),
+            );
+          },
+          loading: () {});
+      if (next != null && next.hasValue) {
+        // Navigate to HomePage if authenticated
+      } else if (next != null && next.hasError) {
+        // Show an error message if authentication failed
+      }
+    });
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -38,21 +58,11 @@ class _SignUpPageState extends State<SignUpPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Sign Up.",
+                "Sign In.",
                 style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 30,
-              ),
-              CustomTextField(
-                hintText: "Name",
-                controller: nameController,
-                validator: (String? val) {
-                  if (val == null || val.isEmpty) {
-                    return "Please insert a name";
-                  }
-                  return null;
-                },
               ),
               const SizedBox(
                 height: 15,
@@ -61,13 +71,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 hintText: "Email",
                 controller: emailController,
                 validator: (String? val) {
-                  final emailRegex =
-                      RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                  if (val == null || val.isEmpty) {
-                    return "Please insert a email";
-                  } else if (emailRegex.hasMatch(val)) {
-                    return "Please insert a valid email address";
-                  }
                   return null;
                 },
               ),
@@ -79,11 +82,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 controller: passwordController,
                 obscureText: true,
                 validator: (String? val) {
-                  if (val == null || val.isEmpty) {
-                    return "Please insert a password";
-                  } else if (val.length < 8) {
-                    return "Please insert a password has at least 8 characters";
-                  }
                   return null;
                 },
               ),
@@ -91,9 +89,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: 20,
               ),
               GradientButton(
-                buttonText: "Sign Up",
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {}
+                buttonText: "Sign In",
+                onPressed: () async {
+                  ref.read(authViewModelProvider.notifier).signIn(
+                        emailController.text.trim().toLowerCase(),
+                        passwordController.text.trim(),
+                      );
                 },
               ),
               const SizedBox(
@@ -102,23 +103,18 @@ class _SignUpPageState extends State<SignUpPage> {
               GestureDetector(
                 child: RichText(
                   text: TextSpan(
-                    text: "Already have an account?",
+                    text: "Don't have an account?",
                     style: Theme.of(context).textTheme.titleMedium,
-                    children: [
+                    children: const [
                       TextSpan(
-                        text: " Sign in",
+                        text: " Sign Up",
                         style: TextStyle(color: AppPalette.gradient2),
                       ),
                     ],
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignInPage(),
-                    ),
-                  );
+                  Navigator.pop(context);
                 },
               )
             ],

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/theme/app_palette.dart';
+import 'package:frontend/features/auth/view/pages/sign_in_page.dart';
 import 'package:frontend/features/auth/view/widgets/custom_filed.dart';
 import 'package:frontend/features/auth/view/widgets/gradient_button.dart';
+import 'package:frontend/features/auth/view_model/auth_view_model.dart';
 
-class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
+class SignUpPage extends ConsumerStatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<SignInPage> createState() => _SignInPageState();
+  ConsumerState<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignUpPageState extends ConsumerState<SignUpPage> {
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -18,6 +22,7 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   void dispose() {
+    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -25,6 +30,7 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("Here");
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -35,11 +41,21 @@ class _SignInPageState extends State<SignInPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Sign In.",
+                "Sign Up.",
                 style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 30,
+              ),
+              CustomTextField(
+                hintText: "Name",
+                controller: nameController,
+                validator: (String? val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return "Please insert a name";
+                  }
+                  return null;
+                },
               ),
               const SizedBox(
                 height: 15,
@@ -48,7 +64,15 @@ class _SignInPageState extends State<SignInPage> {
                 hintText: "Email",
                 controller: emailController,
                 validator: (String? val) {
-                  return null;
+                  final emailRegex =
+                      RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                  if (val == null || val.trim().isEmpty) {
+                    return "Please insert an email";
+                  } else if (!emailRegex.hasMatch(val.trim())) {
+                    return "Please insert a valid email address";
+                  }
+                  return null; // No error, email is valid
                 },
               ),
               const SizedBox(
@@ -59,6 +83,11 @@ class _SignInPageState extends State<SignInPage> {
                 controller: passwordController,
                 obscureText: true,
                 validator: (String? val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return "Please insert a password";
+                  } else if (val.trim().length < 8) {
+                    return "Please insert a password has at least 8 characters";
+                  }
                   return null;
                 },
               ),
@@ -66,9 +95,15 @@ class _SignInPageState extends State<SignInPage> {
                 height: 20,
               ),
               GradientButton(
-                buttonText: "Sign In",
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {}
+                buttonText: "Sign Up",
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    ref.read(authViewModelProvider.notifier).signUp(
+                          nameController.text.trim(),
+                          emailController.text.trim().toLowerCase(),
+                          passwordController.text.trim(),
+                        );
+                  }
                 },
               ),
               const SizedBox(
@@ -77,18 +112,23 @@ class _SignInPageState extends State<SignInPage> {
               GestureDetector(
                 child: RichText(
                   text: TextSpan(
-                    text: "Don\'t have an account?",
+                    text: "Already have an account?",
                     style: Theme.of(context).textTheme.titleMedium,
-                    children: [
+                    children: const [
                       TextSpan(
-                        text: " Sign Up",
+                        text: " Sign in",
                         style: TextStyle(color: AppPalette.gradient2),
                       ),
                     ],
                   ),
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignInPage(),
+                    ),
+                  );
                 },
               )
             ],
