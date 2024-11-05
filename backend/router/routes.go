@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/Thanoraj/movie-suggester/backend/controllers"
+	"github.com/Thanoraj/movie-suggester/backend/middlewares"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -33,9 +34,13 @@ func createRoutes(app *fiber.App) {
 	api := app.Group("/api/v1")
 	api.Post("/register", controllers.RegisterUser)
 	api.Post("/login", controllers.LoginUser)
-	api.Get("/user", controllers.GetUser)
 	api.Post("/logout", controllers.LogoutUser)
 
-	api.Post("/suggestion", controllers.GetSuggestion)
-	api.Post("/movie", controllers.GetMovie)
+
+	userRoutes := api.Group("/user")
+
+	userRoutes.Use(middlewares.AuthMiddleware)
+
+	userRoutes.Get("/", controllers.GetUser)
+
 }

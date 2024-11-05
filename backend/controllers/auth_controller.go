@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/Thanoraj/movie-suggester/backend/database"
@@ -159,26 +158,8 @@ func LoginUser(c *fiber.Ctx) error {
 }
 
 func GetUser(c *fiber.Ctx) error {
-	authorization := c.Get("Authorization")
-	words := strings.Fields(authorization) // Splits by any whitespace
-
-	if len(words) != 2 {
-		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"message": "Insert the token in 'Bearer <user_token>' format",
-		})
-	}
-
-	token := words[1]
-
-	userID, err := services.GetUserIDFromToken(token)
-	fmt.Println(userID)
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"message": err.Error(),
-		})
-	}
+	userID := c.Locals("userID").(uint)
+	
 	var user models.User
 
 	database.GetUserWithID(userID, &user)
