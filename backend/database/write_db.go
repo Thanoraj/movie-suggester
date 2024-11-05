@@ -20,3 +20,17 @@ func WriteUserData(user *models.User) error {
 	return nil
 
 }
+
+func UpdateUserData(user *models.User) error {
+	result := DB.Save(&user)
+	if result.Error != nil {
+		if isDuplicateEmailError(result.Error) {
+			return errors.New("email already exist")
+		}
+		fmt.Println(result.Error)
+		return errors.New("error updating user preferences in the database")
+	}
+
+	return nil
+
+}

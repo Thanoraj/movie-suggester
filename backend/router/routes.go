@@ -38,9 +38,11 @@ func createRoutes(app *fiber.App) {
 
 
 	userRoutes := api.Group("/user")
-
+	
 	userRoutes.Use(middlewares.AuthMiddleware)
 
 	userRoutes.Get("/", controllers.GetUser)
+	userRoutes.Get("/preferences", controllers.Preference)
+	userRoutes.Post("/update-preferences", controllers.UpdatePreferences)
 
 }
