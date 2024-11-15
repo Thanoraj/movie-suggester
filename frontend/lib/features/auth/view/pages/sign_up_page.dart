@@ -30,7 +30,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("Here");
+    print("sign up page");
     return Scaffold(
       appBar: AppBar(),
       body: Padding(

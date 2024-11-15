@@ -40,6 +40,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   flutter_secure_storage: ^4.2.1
+  searchfield: ^1.1.7
 
 dev_dependencies:
   flutter_test:

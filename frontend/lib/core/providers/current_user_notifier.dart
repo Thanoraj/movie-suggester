@@ -1,4 +1,4 @@
-import 'package:frontend/features/auth/model/user.dart';
+import 'package:frontend/core/models/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'current_user_notifier.g.dart';
 

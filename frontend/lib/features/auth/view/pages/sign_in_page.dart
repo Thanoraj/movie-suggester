@@ -29,6 +29,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("sign in page");
+
     ref.listen(authViewModelProvider, (previous, next) {
       next?.when(
           data: (data) {

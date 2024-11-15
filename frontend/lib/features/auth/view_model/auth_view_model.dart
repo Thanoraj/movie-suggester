@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:frontend/core/providers/current_user_notifier.dart';
-import 'package:frontend/features/auth/model/user.dart';
-import 'package:frontend/features/auth/repositories/auth_local_repository.dart';
+import 'package:frontend/core/models/user.dart';
+import 'package:frontend/core/repositories/auth_local_repository.dart';
 import 'package:frontend/features/auth/repositories/auth_remote_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
