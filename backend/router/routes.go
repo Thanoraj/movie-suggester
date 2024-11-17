@@ -36,13 +36,16 @@ func createRoutes(app *fiber.App) {
 	api.Post("/login", controllers.LoginUser)
 	api.Post("/logout", controllers.LogoutUser)
 
-
 	userRoutes := api.Group("/user")
-	
 	userRoutes.Use(middlewares.AuthMiddleware)
-
 	userRoutes.Get("/", controllers.GetUser)
 	userRoutes.Get("/preferences", controllers.Preference)
 	userRoutes.Post("/update-preferences", controllers.UpdatePreferences)
+
+	dataRoutes := api.Group("/data")
+	dataRoutes.Use(middlewares.AuthMiddleware)
+	dataRoutes.Get("/genres", controllers.GetGenreData)
+	dataRoutes.Get("/languages", controllers.GetLanguageData)
+	dataRoutes.Get("/genres-and-languages", controllers.GetGenreLanguageData)
 
 }
