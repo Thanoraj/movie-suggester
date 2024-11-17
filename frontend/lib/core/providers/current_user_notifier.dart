@@ -1,4 +1,5 @@
 import 'package:frontend/core/models/user.dart';
+import 'package:frontend/features/user_details/view_model/user_details_view_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'current_user_notifier.g.dart';
 
@@ -6,6 +7,7 @@ part 'current_user_notifier.g.dart';
 class CurrentUserNotifier extends _$CurrentUserNotifier {
   @override
   User? build() {
+    ref.read(userDetailsViewModelProvider.notifier).getUserPreference();
     return null;
   }
 

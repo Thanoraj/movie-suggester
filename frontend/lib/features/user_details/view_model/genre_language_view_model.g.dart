@@ -1,27 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'current_user_notifier.dart';
+part of 'genre_language_view_model.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$currentUserNotifierHash() =>
-    r'b57f5a2b33206a0fb615de4eced56d52330ce82b';
+String _$genreLanguageViewModelHash() =>
+    r'2d4c55b7049588b06479f5268951046368dd8c50';
 
-/// See also [CurrentUserNotifier].
-@ProviderFor(CurrentUserNotifier)
-final currentUserNotifierProvider =
-    NotifierProvider<CurrentUserNotifier, User?>.internal(
-  CurrentUserNotifier.new,
-  name: r'currentUserNotifierProvider',
+/// See also [GenreLanguageViewModel].
+@ProviderFor(GenreLanguageViewModel)
+final genreLanguageViewModelProvider =
+    AutoDisposeAsyncNotifierProvider<GenreLanguageViewModel, Map?>.internal(
+  GenreLanguageViewModel.new,
+  name: r'genreLanguageViewModelProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$currentUserNotifierHash,
+      : _$genreLanguageViewModelHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CurrentUserNotifier = Notifier<User?>;
+typedef _$GenreLanguageViewModel = AutoDisposeAsyncNotifier<Map?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
