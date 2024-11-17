@@ -7,12 +7,12 @@ part of 'genre_language_view_model.dart';
 // **************************************************************************
 
 String _$genreLanguageViewModelHash() =>
-    r'2d4c55b7049588b06479f5268951046368dd8c50';
+    r'e0d1fe87a729b979f36aa6e1ab96bf3423d99f03';
 
 /// See also [GenreLanguageViewModel].
 @ProviderFor(GenreLanguageViewModel)
-final genreLanguageViewModelProvider =
-    AutoDisposeAsyncNotifierProvider<GenreLanguageViewModel, Map?>.internal(
+final genreLanguageViewModelProvider = AutoDisposeNotifierProvider<
+    GenreLanguageViewModel, AsyncValue<Map<String, List<Detail>>>>.internal(
   GenreLanguageViewModel.new,
   name: r'genreLanguageViewModelProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -22,6 +22,7 @@ final genreLanguageViewModelProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$GenreLanguageViewModel = AutoDisposeAsyncNotifier<Map?>;
+typedef _$GenreLanguageViewModel
+    = AutoDisposeNotifier<AsyncValue<Map<String, List<Detail>>>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

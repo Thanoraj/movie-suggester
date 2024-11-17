@@ -7,7 +7,6 @@ part 'current_user_notifier.g.dart';
 class CurrentUserNotifier extends _$CurrentUserNotifier {
   @override
   User? build() {
-    ref.read(userDetailsViewModelProvider.notifier).getUserPreference();
     return null;
   }
 

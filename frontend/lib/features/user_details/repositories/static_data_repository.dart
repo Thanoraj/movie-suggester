@@ -21,7 +21,7 @@ class StaticDataRepository {
         "Content-Type": "application/json",
       };
 
-      const preferenceUrl = "$backendUrl/api/v1/languages-and-genres";
+      const preferenceUrl = "$backendUrl/api/v1/data/genres-and-languages";
 
       http.Response response = await http.get(
         Uri.parse(preferenceUrl),
@@ -29,10 +29,11 @@ class StaticDataRepository {
       );
 
       final res = jsonDecode(response.body) as Map<String, dynamic>;
+
       if (response.statusCode == 200) {
         return Right({
-          "genres": res['genres'],
-          "languages": res['languages'],
+          "genres": res['result']['genres'],
+          "languages": res['result']['languages'],
         });
       } else {
         return Left(

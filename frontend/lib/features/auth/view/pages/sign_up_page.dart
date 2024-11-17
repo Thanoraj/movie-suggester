@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/failures/failure.dart';
 import 'package:frontend/core/theme/app_palette.dart';
 import 'package:frontend/features/auth/view/pages/sign_in_page.dart';
 import 'package:frontend/features/auth/view/widgets/custom_filed.dart';
-import 'package:frontend/features/auth/view/widgets/gradient_button.dart';
+import 'package:frontend/core/widgets/gradient_button.dart';
 import 'package:frontend/features/auth/view_model/auth_view_model.dart';
+import 'package:frontend/features/user_details/view/pages/user_details_page.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
@@ -31,6 +33,25 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     print("sign up page");
+    ref.listen(authViewModelProvider, (previous, next) {
+      next?.when(
+          data: (data) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const UserDetailsPage()),
+            );
+          },
+          error: (error, stackTrace) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text((error as Failure).message)),
+            );
+          },
+          loading: () {});
+      if (next != null && next.hasValue) {
+        // Navigate to HomePage if authenticated
+      } else if (next != null && next.hasError) {
+        // Show an error message if authentication failed
+      }
+    });
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -95,6 +116,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 height: 20,
               ),
               GradientButton(
+                loadingProvider: authViewModelProvider,
                 buttonText: "Sign Up",
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {

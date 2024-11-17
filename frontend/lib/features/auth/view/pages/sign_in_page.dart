@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/failures/failure.dart';
 import 'package:frontend/core/theme/app_palette.dart';
 import 'package:frontend/features/auth/view/widgets/custom_filed.dart';
-import 'package:frontend/features/auth/view/widgets/gradient_button.dart';
+import 'package:frontend/core/widgets/gradient_button.dart';
 import 'package:frontend/features/auth/view_model/auth_view_model.dart';
 import 'package:frontend/features/home/view/pages/home_page.dart';
 
@@ -91,6 +91,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 height: 20,
               ),
               GradientButton(
+                loadingProvider: authViewModelProvider,
                 buttonText: "Sign In",
                 onPressed: () async {
                   ref.read(authViewModelProvider.notifier).signIn(

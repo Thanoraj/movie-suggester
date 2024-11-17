@@ -2,13 +2,11 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-
-import 'package:frontend/features/user_details/model/genre.dart';
-import 'package:frontend/features/user_details/model/language.dart';
+import 'package:frontend/features/user_details/model/detail.dart';
 
 class UserDetails {
-  final List<Genre> preferredGenres;
-  final List<Language> preferredLanguages;
+  final List<Detail> preferredGenres;
+  final List<Detail> preferredLanguages;
 
   UserDetails({
     required this.preferredGenres,
@@ -16,8 +14,8 @@ class UserDetails {
   });
 
   UserDetails copyWith({
-    List<Genre>? preferredGenres,
-    List<Language>? preferredLanguages,
+    List<Detail>? preferredGenres,
+    List<Detail>? preferredLanguages,
   }) {
     return UserDetails(
       preferredGenres: preferredGenres ?? this.preferredGenres,
@@ -32,16 +30,16 @@ class UserDetails {
     };
   }
 
-  factory UserDetails.fromMap(Map<String, dynamic> map) {
+  factory UserDetails.fromMap(Map<String, List<String>> map) {
     return UserDetails(
       preferredGenres: List<Genre>.from(
-        (map['preferredGenres'] as List<int>).map<Genre>(
-          (x) => Genre.fromMap(x as Map<String, dynamic>),
+        (map['preferred_genres'] as List<String>).map<Detail>(
+          (x) => Genre.fromMap({'name': x}),
         ),
       ),
       preferredLanguages: List<Language>.from(
-        (map['preferredLanguages'] as List<int>).map<Language>(
-          (x) => Language.fromMap(x as Map<String, dynamic>),
+        (map['preferred_languages'] as List<String>).map<Detail>(
+          (x) => Language.fromMap({'name': x}),
         ),
       ),
     );
@@ -50,7 +48,7 @@ class UserDetails {
   String toJson() => json.encode(toMap());
 
   factory UserDetails.fromJson(String source) =>
-      UserDetails.fromMap(json.decode(source) as Map<String, dynamic>);
+      UserDetails.fromMap(json.decode(source) as Map<String, List<String>>);
 
   @override
   String toString() =>

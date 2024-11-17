@@ -4,9 +4,14 @@ import 'package:frontend/core/theme/app_palette.dart';
 import 'package:frontend/features/auth/view_model/auth_view_model.dart';
 
 class GradientButton extends ConsumerStatefulWidget {
-  const GradientButton({super.key, this.onPressed, required this.buttonText});
+  const GradientButton(
+      {super.key,
+      this.onPressed,
+      required this.loadingProvider,
+      required this.buttonText});
   final Function()? onPressed;
   final String buttonText;
+  final ProviderListenable loadingProvider;
 
   @override
   ConsumerState<GradientButton> createState() => _GradientButtonState();
@@ -16,8 +21,7 @@ class _GradientButtonState extends ConsumerState<GradientButton> {
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {
-    bool isLoading = ref.watch(authViewModelProvider)?.isLoading == true;
-
+    bool isLoading = ref.watch(widget.loadingProvider)?.isLoading == true;
     return Container(
       width: double.infinity,
       height: 55,
