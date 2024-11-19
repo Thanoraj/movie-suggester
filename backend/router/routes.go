@@ -33,12 +33,17 @@ func createRoutes(app *fiber.App) {
 
 	api := app.Group("/api/v1")
 	api.Post("/register", controllers.RegisterUser)
+	api.Post("/send-verification", controllers.SendVerificationEmail)
+	api.Get("/verify-email", controllers.VerifyEmail)
+	api.Post("/verification-status", controllers.GetVerificationStatus)
 	api.Post("/login", controllers.LoginUser)
 	api.Post("/logout", controllers.LogoutUser)
+	api.Post("/delete-user-email", controllers.DeleteUserWithEmail)
 
 	userRoutes := api.Group("/user")
 	userRoutes.Use(middlewares.AuthMiddleware)
 	userRoutes.Get("/", controllers.GetUser)
+	userRoutes.Post("/delete-user", controllers.DeleteUser)
 	userRoutes.Get("/preferences", controllers.Preference)
 	userRoutes.Post("/update-preferences", controllers.UpdatePreferences)
 

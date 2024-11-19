@@ -13,11 +13,10 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	tokenString := c.Get("Authorization")
 	if tokenString == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success":false,
+			"success": false,
 			"message": "Missing authorization header",
 		})
 	}
-
 
 	words := strings.Fields(tokenString) // Splits by any whitespace
 	if len(words) != 2 {
@@ -29,7 +28,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 
 	token := words[1]
 
-	
 	// Parse and validate the token
 	services.GetUserIDFromToken(token)
 
@@ -44,5 +42,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 
 	// Store user ID in context for use in controllers
 	c.Locals("userID", uint(userID))
+	c.Locals("token", token)
 	return c.Next()
 }
