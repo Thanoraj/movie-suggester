@@ -1,36 +1,17 @@
 package database
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/Thanoraj/movie-suggester/backend/models"
 )
 
-func WriteUserData(user *models.User) error {
-	result := DB.Create(&user)
-	if result.Error != nil {
-		if isDuplicateEmailError(result.Error) {
-			return errors.New("email already exist")
-		}
-		fmt.Println(result.Error)
-		return errors.New("error creating user in the database")
-	}
-
-	return nil
-
+func CreateTableRow(model models.TableModel) error {
+	return DB.Table(model.TableName()).Create(model).Error
 }
 
-func UpdateUserData(user *models.User) error {
-	result := DB.Save(&user)
-	if result.Error != nil {
-		if isDuplicateEmailError(result.Error) {
-			return errors.New("email already exist")
-		}
-		fmt.Println(result.Error)
-		return errors.New("error updating user preferences in the database")
-	}
+func SaveTableRow(model models.TableModel) error {
+	return DB.Table(model.TableName()).Save(model).Error
+}
 
-	return nil
-
+func UpdateUserData(model models.TableModel) error {
+	return DB.Table(model.TableName()).Save(model).Error
 }

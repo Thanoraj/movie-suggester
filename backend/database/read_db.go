@@ -1,13 +1,13 @@
 package database
 
-import "github.com/Thanoraj/movie-suggester/backend/models"
+import (
+	"github.com/Thanoraj/movie-suggester/backend/models"
+)
 
-func GetUserWithEmail(email string, user *models.User) error {
-	return DB.Where("email = ?", email).First(user).Error
+func GetUserWithEmail(email string, tableModel models.TableModel) error {
+	return DB.Table(tableModel.TableName()).Where("email = ?", email).First(tableModel).Error
 }
 
-func GetUserWithID(userID uint, user *models.User) error {
-	return  DB.Where("Id = ?", userID).First(user).Error
-	
-
+func GetUserWithID(userID uint, tableModel models.TableModel) error {
+	return DB.Table(tableModel.TableName()).Where("Id = ?", userID).First(tableModel).Error
 }

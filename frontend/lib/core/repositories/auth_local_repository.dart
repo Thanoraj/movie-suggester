@@ -13,13 +13,16 @@ class AuthLocalRepository {
   final storage = const FlutterSecureStorage();
 
   Future setToken(String? token) async {
-    if (token != null) {
-      await storage.write(key: tokenKey, value: token);
-    }
+    // if (token != null) {
+    await storage.write(key: tokenKey, value: token);
+    print("User token $token saved to $tokenKey");
+
+    // }
   }
 
   Future<String?> getToken() async {
     String? value = await storage.read(key: tokenKey);
+    print("User token $value received from $tokenKey");
     return value;
   }
 }

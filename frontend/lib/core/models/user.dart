@@ -7,6 +7,7 @@ class User {
   final String id;
   final String? imageUrl;
   final String? token;
+  final bool detailsAdded;
 
   const User({
     required this.name,
@@ -14,6 +15,7 @@ class User {
     required this.id,
     this.imageUrl,
     this.token,
+    this.detailsAdded = false,
   });
 
   User copyWith({
@@ -22,6 +24,7 @@ class User {
     String? id,
     String? imageUrl,
     String? token,
+    bool? detailsAdded,
   }) {
     return User(
       name: name ?? this.name,
@@ -29,6 +32,7 @@ class User {
       id: id ?? this.id,
       imageUrl: imageUrl ?? this.imageUrl,
       token: token ?? this.token,
+      detailsAdded: detailsAdded ?? this.detailsAdded,
     );
   }
 
@@ -39,6 +43,7 @@ class User {
       'id': id,
       'imageUrl': imageUrl,
       'token': token,
+      'detailsAdded': detailsAdded,
     };
   }
 
@@ -49,6 +54,7 @@ class User {
       id: map['id'].toString(),
       imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
       token: map['token'] != null ? map['token'] as String : null,
+      detailsAdded: (map['detailsAdded'] ?? false) as bool,
     );
   }
 
@@ -59,7 +65,7 @@ class User {
 
   @override
   String toString() {
-    return 'User(name: $name, email: $email, id: $id, imageUrl: $imageUrl, token: $token)';
+    return 'User(name: $name, email: $email, id: $id, imageUrl: $imageUrl, token: $token, detailsAdded: $detailsAdded)';
   }
 
   @override
@@ -70,7 +76,8 @@ class User {
         other.email == email &&
         other.id == id &&
         other.imageUrl == imageUrl &&
-        other.token == token;
+        other.token == token &&
+        other.detailsAdded == detailsAdded;
   }
 
   @override
@@ -79,6 +86,7 @@ class User {
         email.hashCode ^
         id.hashCode ^
         imageUrl.hashCode ^
-        token.hashCode;
+        token.hashCode ^
+        detailsAdded.hashCode;
   }
 }

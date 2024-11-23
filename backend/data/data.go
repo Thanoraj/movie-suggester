@@ -40,3 +40,6 @@ var Languages = []string{
 	"Tamil",
 	"Telugu",
 }
+
+const TempUserTableName = "temp_users"
+const UserTableName = "users"

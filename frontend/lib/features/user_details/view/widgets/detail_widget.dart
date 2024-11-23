@@ -27,6 +27,7 @@ class _DetailWidgetState extends State<DetailWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.selectedList);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

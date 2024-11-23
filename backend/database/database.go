@@ -14,7 +14,7 @@ var DB *gorm.DB
 
 func InitDB() {
 	// Define the database connection string
-	dsn := fmt.Sprintf("%s:%s@/%s", config.DB_USERNAME, config.DB_PASSWORD, config.DB_NAME)
+	dsn := fmt.Sprintf("%s:%s@/%s?parseTime=True", config.DB_USERNAME, config.DB_PASSWORD, config.DB_NAME)
 
 	// Open a database connection
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -24,7 +24,9 @@ func InitDB() {
 
 	DB = db
 
-	DB.AutoMigrate(&models.User{})
+	DB = DB.Debug()
+
+	DB.AutoMigrate(&models.User{}, &models.TempUser{})
 
 	fmt.Println("Connected to the database successfully!")
 }

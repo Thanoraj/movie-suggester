@@ -6,7 +6,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-func isDuplicateEmailError(err error) bool {
+func IsDuplicateEmailError(err error) bool {
 	// GORM wraps errors, so we need to unwrap
 	if mysqlErr, ok := err.(*mysql.MySQLError); ok {
 		switch mysqlErr.Number {

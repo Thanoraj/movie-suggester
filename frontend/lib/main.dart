@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/current_user_notifier.dart';
 import 'package:frontend/core/theme/theme.dart';
+import 'package:frontend/features/auth/view/pages/email_verification_page.dart';
 import 'package:frontend/features/auth/view/pages/sign_up_page.dart';
 import 'package:frontend/features/auth/view_model/auth_view_model.dart';
+import 'package:frontend/features/home/view/pages/home_page.dart';
 import 'package:frontend/features/user_details/view/pages/user_details_page.dart';
 
 import 'core/models/user.dart';
@@ -34,7 +36,11 @@ class _MyAppState extends ConsumerState<MyApp> {
     return MaterialApp(
       title: 'Movie Suggester',
       theme: AppTheme.darkTheme,
-      home: user != null ? const UserDetailsPage() : const SignUpPage(),
+      home: user != null
+          ? user.detailsAdded == false
+              ? UserDetailsPage()
+              : HomePage()
+          : const SignUpPage(),
     );
   }
 }

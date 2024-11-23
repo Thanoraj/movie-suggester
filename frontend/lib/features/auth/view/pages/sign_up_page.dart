@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/failures/failure.dart';
 import 'package:frontend/core/theme/app_palette.dart';
+import 'package:frontend/features/auth/view/pages/email_verification_page.dart';
 import 'package:frontend/features/auth/view/pages/sign_in_page.dart';
 import 'package:frontend/features/auth/view/widgets/custom_filed.dart';
 import 'package:frontend/core/widgets/gradient_button.dart';
@@ -37,7 +38,10 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       next?.when(
           data: (data) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const UserDetailsPage()),
+              MaterialPageRoute(
+                  builder: (context) => const EmailVerificationPage(
+                        verificationMessage: "Please verify your email address",
+                      )),
             );
           },
           error: (error, stackTrace) {

@@ -1,13 +1,9 @@
-import 'dart:ffi';
-
-import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:frontend/core/models/user.dart';
 import 'package:frontend/core/models/user_details.dart';
 import 'package:frontend/core/providers/current_user_notifier.dart';
 import 'package:frontend/features/user_details/model/detail.dart';
 import 'package:frontend/features/user_details/repositories/user_details_repository.dart';
-import 'package:frontend/main.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'user_details_view_model.g.dart';

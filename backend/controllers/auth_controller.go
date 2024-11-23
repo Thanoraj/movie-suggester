@@ -30,36 +30,51 @@ func RegisterUser(c *fiber.Ctx) error {
 	}
 
 	password, _ := services.HashPassword(body["password"])
-	user := models.User{
-		Name:     body["name"],
-		Email:    body["email"],
-		Password: password,
+
+	var user models.User
+
+	database.GetUserWithEmail(body["email"], user)
+
+	fmt.Println(user)
+
+	if user.ID != 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "user already exist",
+		})
 	}
 
-	err := database.WriteUserData(&user)
+	tempUser := &models.TempUser{
+		Name:                  body["name"],
+		Email:                 body["email"],
+		Password:              password,
+		VerificationExpiresAt: time.Now(),
+		Verified:              false,
+	}
+
+	fmt.Println(tempUser)
+
+	err := database.SaveTableRow(tempUser)
 
 	if err != nil {
-		switch err.Error() {
-		case "email already exist":
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"message": err.Error(),
-			})
-		default:
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"success": false,
-				"message": err.Error(),
+
+		if database.IsDuplicateEmailError(err) {
+			return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+				"success": true,
+				"message": "user created successfully",
 			})
 		}
-
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": err.Error(),
+		})
 	}
 
-	fmt.Printf("User registered with %s", user.Email)
+	fmt.Printf("User registered with %s", tempUser.Email)
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "user created successfully",
 		"success": true,
-		"result":  user,
 	})
 
 }
@@ -78,7 +93,7 @@ func LoginUser(c *fiber.Ctx) error {
 
 	database.GetUserWithEmail(body["email"], &user)
 
-	if user.Id == 0 {
+	if user.ID == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": data.UserNotFound,
 			"success": false,
@@ -92,11 +107,11 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println(strconv.Itoa(int(user.Id)))
+	fmt.Println(strconv.Itoa(int(user.ID)))
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 
-	token, err := services.GetUserToken(user.Id, expirationTime)
+	token, err := services.GetUserToken(user.ID, expirationTime)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "could not login the user",
@@ -138,7 +153,7 @@ func GetUser(c *fiber.Ctx) error {
 
 	database.GetUserWithID(userID, &user)
 
-	if user.Id == 0 {
+	if user.ID == 0 {
 
 		removeCookie(c)
 
@@ -179,7 +194,7 @@ func removeCookie(c *fiber.Ctx) {
 }
 
 func SendVerificationEmail(c *fiber.Ctx) error {
-
+	fmt.Println("Send verification")
 	var body map[string]string
 
 	if err := c.BodyParser(&body); err != nil {
@@ -191,11 +206,13 @@ func SendVerificationEmail(c *fiber.Ctx) error {
 
 	fmt.Println(body)
 
-	var user models.User
+	var tempUser models.TempUser
 
-	database.GetUserWithEmail(body["email"], &user)
+	database.GetUserWithEmail(body["email"], &tempUser)
 
-	if user.Id == 0 {
+	fmt.Println(tempUser.ID)
+
+	if tempUser.ID == 0 {
 
 		removeCookie(c)
 
@@ -207,7 +224,7 @@ func SendVerificationEmail(c *fiber.Ctx) error {
 
 	expirationTime := time.Now().Add(5 * time.Minute)
 
-	emailToken, err := services.GetEmailToken(user.Email, expirationTime)
+	emailToken, err := services.GetEmailToken(tempUser.Email, expirationTime)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -215,7 +232,9 @@ func SendVerificationEmail(c *fiber.Ctx) error {
 			"success": false,
 		})
 	}
-	err = services.SendVerificationEmail(user.Email, emailToken)
+
+	fmt.Println(emailToken)
+	err = services.SendVerificationEmail(tempUser.Email, emailToken)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -224,9 +243,13 @@ func SendVerificationEmail(c *fiber.Ctx) error {
 		})
 	}
 
-	user.Verified = false
+	tempUser.Verified = false
 
-	database.UpdateUserData(&user)
+	tempUser.VerificationExpiresAt = expirationTime
+
+	database.UpdateUserData(&tempUser)
+
+	fmt.Println("Sent verification")
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
@@ -236,6 +259,7 @@ func SendVerificationEmail(c *fiber.Ctx) error {
 }
 
 func VerifyEmail(c *fiber.Ctx) error {
+
 	token := c.Query("token")
 
 	email, err := services.GetEmailFromToken(token)
@@ -247,15 +271,19 @@ func VerifyEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid url. Please check the url or re-generate it")
 	}
 
-	var user models.User
+	var tempUser models.TempUser
 
-	database.GetUserWithEmail(email, &user)
+	database.GetUserWithEmail(email, &tempUser)
 
-	if user.Id == 0 {
+	if tempUser.ID == 0 {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid url. Please check the url or re-generate it")
 	}
 
-	user.Verified = true
+	user := models.User{
+		Email:    tempUser.Email,
+		Password: tempUser.Password,
+		Name:     tempUser.Name,
+	}
 
 	err = database.UpdateUserData(&user)
 
@@ -263,47 +291,97 @@ func VerifyEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("User verification failed")
 	}
 
+	tempUser.Verified = true
+	err = database.UpdateUserData(&tempUser)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("User Created successfully. Please restart the app and login with the credentials")
+	}
+
 	return c.Status(fiber.StatusOK).SendString("user verified successfully")
 
 }
 
 func GetVerificationStatus(c *fiber.Ctx) error {
+	fmt.Println("GetVerificationStatus")
+
 	var body map[string]string
 
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": data.InvalidRequestFormat,
 			"success": false,
+			"result": fiber.Map{
+				"verified": false,
+				"expired":  false,
+			},
 		})
 	}
 
 	fmt.Println(body)
 
-	var user models.User
+	var tempUser models.TempUser
 
-	database.GetUserWithEmail(body["email"], &user)
+	database.GetUserWithEmail(body["email"], &tempUser)
 
-	if user.Id == 0 {
+	if tempUser.ID == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"message": data.UserNotFound,
 			"success": false,
+			"result": fiber.Map{
+				"verified": false,
+				"expired":  false,
+			},
 		})
 	}
 
-	if !user.Verified {
+	if !tempUser.Verified && tempUser.VerificationExpiresAt.Before(time.Now()) {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "verification url expired. Please click resend button and verify the email.",
+			"success": true,
+			"result": fiber.Map{
+				"verified": false,
+				"expired":  true,
+			},
+		})
+	} else if !tempUser.Verified {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"message": "user not verified yet",
-			"success": false,
+			"success": true,
+			"result": fiber.Map{
+				"verified": false,
+				"expired":  false,
+			},
 		})
 	}
 
-	expirationTime := time.Now().Add(24 * time.Hour)
+	var user models.User
 
-	token, err := services.GetUserToken(user.Id, expirationTime)
+	err := database.GetUserWithEmail(tempUser.Email, &user)
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "could not login the user",
+			"message": data.LoginAgainMsg,
 			"success": false,
+			"result": fiber.Map{
+				"verified": true,
+				"expired":  false,
+			},
+		})
+	}
+
+	expirationTime := time.Now().Add(365 * 24 * time.Hour)
+	fmt.Println(user)
+	token, err := services.GetUserToken(user.ID, expirationTime)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": data.LoginAgainMsg,
+			"success": false,
+			"result": fiber.Map{
+				"verified": true,
+				"expired":  false,
+				"user":     user,
+			},
 		})
 	}
 
@@ -321,15 +399,23 @@ func GetVerificationStatus(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"success": true,
 			"message": "email verified successfully",
-			"result":  user,
+			"result": fiber.Map{
+				"verified": true,
+				"expired":  false,
+				"user":     user,
+			},
 		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "email verified successfully",
-		"result":  user,
-		"token":   token,
+		"result": fiber.Map{
+			"verified": true,
+			"expired":  false,
+			"token":    token,
+			"user":     user,
+		},
 	})
 
 }
@@ -337,7 +423,7 @@ func GetVerificationStatus(c *fiber.Ctx) error {
 func DeleteUser(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(uint)
 
-	database.DeleteUserWithID(userID)
+	database.DeleteUserWithID(userID, data.UserTableName)
 
 	removeCookie(c)
 
@@ -361,7 +447,7 @@ func DeleteUserWithEmail(c *fiber.Ctx) error {
 	var user models.User
 	database.GetUserWithEmail(body["email"], &user)
 
-	database.DeleteUserWithID(user.Id)
+	database.DeleteUserWithID(user.ID, data.UserTableName)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
