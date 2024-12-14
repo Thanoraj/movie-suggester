@@ -23,7 +23,7 @@ class EmailVerificationViewModel extends _$EmailVerificationViewModel {
   }
 
   sendVerificationEmail() async {
-    state = AsyncValue.loading();
+    state = const AsyncValue.loading();
     print(_user!.email);
     final res = await ref
         .read(authRemoteRepositoryProvider)

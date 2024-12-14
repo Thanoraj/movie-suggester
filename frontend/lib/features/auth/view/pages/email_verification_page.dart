@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/failures/failure.dart';
@@ -69,12 +67,12 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
             children: [
               Text(
                 widget.verificationMessage,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 30,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               if (verificationStatus?.expired != false)

@@ -7,7 +7,6 @@ import 'package:frontend/features/auth/view/pages/sign_in_page.dart';
 import 'package:frontend/features/auth/view/widgets/custom_filed.dart';
 import 'package:frontend/core/widgets/gradient_button.dart';
 import 'package:frontend/features/auth/view_model/auth_view_model.dart';
-import 'package:frontend/features/user_details/view/pages/user_details_page.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});

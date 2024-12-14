@@ -33,7 +33,7 @@ class _DetailWidgetState extends State<DetailWidget> {
       children: [
         Text(
           widget.label,
-          style: TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 20),
         ),
         const SizedBox(
           height: 15,
@@ -45,7 +45,7 @@ class _DetailWidgetState extends State<DetailWidget> {
           },
           focusNode: _focusNode,
           searchInputDecoration: SearchInputDecoration(
-            contentPadding: EdgeInsets.all(20),
+            contentPadding: const EdgeInsets.all(20),
           ),
           onSuggestionTap: (SearchFieldListItem<Detail> x) {
             _focusNode.unfocus();

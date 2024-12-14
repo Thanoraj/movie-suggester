@@ -13,7 +13,7 @@ class GenreLanguageViewModel extends _$GenreLanguageViewModel {
 
   @override
   AsyncValue<Map<String, List<Detail>>> build() {
-    state = AsyncValue.loading();
+    state = const AsyncValue.loading();
     _currentUser = ref.watch(currentUserNotifierProvider);
 
     loadOptions();

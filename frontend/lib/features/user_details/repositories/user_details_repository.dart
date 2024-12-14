@@ -83,8 +83,6 @@ class UserDetailsRepository {
       http.Response response = await http.post(Uri.parse(preferenceUrl),
           headers: headers, body: body);
 
-      await Future.delayed(Duration(seconds: 10));
-
       final res = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
         return Right(res['message']);

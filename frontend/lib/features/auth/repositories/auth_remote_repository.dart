@@ -41,7 +41,7 @@ class AuthRemoteRepository {
       final res = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 201) {
         print(res);
-        return Right(true);
+        return const Right(true);
       } else {
         return Left(
           Failure(

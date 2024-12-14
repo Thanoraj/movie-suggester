@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Thanoraj/movie-suggester/backend/database"
@@ -22,8 +23,17 @@ func Preference(c *fiber.Ctx) error {
 		})
 	}
 
-	preferredGenres := strings.Split(user.PreferredGenres, ", ")
-	preferredLanguages := strings.Split(user.PreferredLanguages, ", ")
+	preferredGenres := []string{}
+	preferredLanguages := []string{}
+
+	if user.PreferredGenres != "" {
+		preferredGenres = strings.Split(user.PreferredGenres, ", ")
+	}
+
+	if user.PreferredLanguages != "" {
+		preferredLanguages = strings.Split(user.PreferredLanguages, ", ")
+
+	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
@@ -37,6 +47,8 @@ func Preference(c *fiber.Ctx) error {
 
 func UpdatePreferences(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(uint)
+
+	fmt.Println(userID)
 
 	var userPreferences struct {
 		PreferredGenres    []string `json:"preferred_genres"`
@@ -68,6 +80,7 @@ func UpdatePreferences(c *fiber.Ctx) error {
 	// Update preferences
 	user.PreferredGenres = preferredGenres       //userPreferences.PreferredGenres
 	user.PreferredLanguages = preferredLanguages //userPreferences.PreferredLanguages
+	user.DetailsAdded = true
 
 	err = database.UpdateUserData(&user)
 

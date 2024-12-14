@@ -27,7 +27,6 @@ class _UserDetailsPageState extends ConsumerState<UserDetailsPage> {
     final genreAndLanguagesProvider = ref.watch(genreLanguageViewModelProvider);
     ref.listen<AsyncValue<void>>(userDetailsViewModelProvider,
         (previous, next) {
-      print(isSaving);
       if (isSaving) {
         if (next is AsyncData) {
           // Navigate to the home screen on successful save

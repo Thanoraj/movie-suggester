@@ -15,6 +15,7 @@ type User struct {
 	Password           []byte         `json:"-"` // Omit password from JSON responses
 	PreferredGenres    string         `json:"preferred_genres"`
 	PreferredLanguages string         `json:"preferred_languages"`
+	DetailsAdded       bool           `json:"detailsAdded" gorm:"default:false"`
 	CreatedAt          time.Time      `json:"created_at"` // GORM populates these fields automatically
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `json:"deleted_at" gorm:"index"`

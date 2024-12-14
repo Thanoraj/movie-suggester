@@ -36,7 +36,7 @@ class UserDetailsViewModel extends _$UserDetailsViewModel {
   }
 
   saveUserPreference(UserDetails userDetails) async {
-    state = AsyncValue.loading();
+    state = const AsyncValue.loading();
 
     List<String> listGenres =
         userDetails.preferredGenres.map((detail) => detail.name).toList();

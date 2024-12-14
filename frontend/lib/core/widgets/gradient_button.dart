@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/theme/app_palette.dart';
-import 'package:frontend/features/auth/view_model/auth_view_model.dart';
 
 class GradientButton extends ConsumerStatefulWidget {
   const GradientButton(

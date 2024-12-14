@@ -78,121 +78,6 @@ func RegisterUser(c *fiber.Ctx) error {
 	})
 
 }
-
-func LoginUser(c *fiber.Ctx) error {
-	var body map[string]string
-
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": data.InvalidRequestFormat,
-			"success": false,
-		})
-	}
-
-	var user models.User
-
-	database.GetUserWithEmail(body["email"], &user)
-
-	if user.ID == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": data.UserNotFound,
-			"success": false,
-		})
-	}
-
-	if err := services.ComparePasswords(user.Password, body["password"]); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "in correct password",
-			"success": false,
-		})
-	}
-
-	fmt.Println(strconv.Itoa(int(user.ID)))
-
-	expirationTime := time.Now().Add(24 * time.Hour)
-
-	token, err := services.GetUserToken(user.ID, expirationTime)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "could not login the user",
-			"success": false,
-		})
-	}
-
-	clientType := c.Get("X-Client-Type")
-	if clientType == "web" {
-		cookie := fiber.Cookie{
-			Name:     userToken,
-			Value:    token,
-			Expires:  expirationTime,
-			HTTPOnly: true,
-		}
-
-		c.Cookie(&cookie)
-
-		return c.JSON(fiber.Map{
-			"message": "user logged in successfully",
-			"success": true,
-			"user":    user,
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"message": "user logged in successfully",
-		"success": true,
-		"result":  user,
-		"token":   token,
-	})
-
-}
-
-func GetUser(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(uint)
-
-	var user models.User
-
-	database.GetUserWithID(userID, &user)
-
-	if user.ID == 0 {
-
-		removeCookie(c)
-
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": data.UserNotFound,
-			"success": false,
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"message": "fetched user successfully",
-		"success": true,
-		"result":  user,
-	})
-
-}
-
-func LogoutUser(c *fiber.Ctx) error {
-
-	removeCookie(c)
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "user logged out successfully",
-		"success": true,
-	})
-
-}
-
-func removeCookie(c *fiber.Ctx) {
-	cookie := fiber.Cookie{
-		Name:     userToken,
-		Value:    "",
-		Expires:  time.Now().Add(-1 * time.Hour),
-		HTTPOnly: true,
-	}
-
-	c.Cookie(&cookie)
-}
-
 func SendVerificationEmail(c *fiber.Ctx) error {
 	fmt.Println("Send verification")
 	var body map[string]string
@@ -418,6 +303,120 @@ func GetVerificationStatus(c *fiber.Ctx) error {
 		},
 	})
 
+}
+
+func GetUser(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+
+	var user models.User
+
+	database.GetUserWithID(userID, &user)
+
+	if user.ID == 0 {
+
+		removeCookie(c)
+
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": data.UserNotFound,
+			"success": false,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "fetched user successfully",
+		"success": true,
+		"result":  user,
+	})
+
+}
+
+func LoginUser(c *fiber.Ctx) error {
+	var body map[string]string
+
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": data.InvalidRequestFormat,
+			"success": false,
+		})
+	}
+
+	var user models.User
+
+	database.GetUserWithEmail(body["email"], &user)
+
+	if user.ID == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": data.UserNotFound,
+			"success": false,
+		})
+	}
+
+	if err := services.ComparePasswords(user.Password, body["password"]); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "in correct password",
+			"success": false,
+		})
+	}
+
+	fmt.Println(strconv.Itoa(int(user.ID)))
+
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	token, err := services.GetUserToken(user.ID, expirationTime)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "could not login the user",
+			"success": false,
+		})
+	}
+
+	clientType := c.Get("X-Client-Type")
+	if clientType == "web" {
+		cookie := fiber.Cookie{
+			Name:     userToken,
+			Value:    token,
+			Expires:  expirationTime,
+			HTTPOnly: true,
+		}
+
+		c.Cookie(&cookie)
+
+		return c.JSON(fiber.Map{
+			"message": "user logged in successfully",
+			"success": true,
+			"user":    user,
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "user logged in successfully",
+		"success": true,
+		"result":  user,
+		"token":   token,
+	})
+
+}
+
+func LogoutUser(c *fiber.Ctx) error {
+
+	removeCookie(c)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "user logged out successfully",
+		"success": true,
+	})
+
+}
+
+func removeCookie(c *fiber.Ctx) {
+	cookie := fiber.Cookie{
+		Name:     userToken,
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
 }
 
 func DeleteUser(c *fiber.Ctx) error {
