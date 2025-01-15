@@ -45,7 +45,7 @@ func RegisterUser(c *fiber.Ctx) error {
 	}
 
 	tempUser := &models.TempUser{
-		Name:                  body["name"],
+		Name:                  services.ToTitleCase(body["name"]),
 		Email:                 body["email"],
 		Password:              password,
 		VerificationExpiresAt: time.Now(),

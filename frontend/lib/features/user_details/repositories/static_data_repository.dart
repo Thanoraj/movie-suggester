@@ -1,16 +1,16 @@
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:frontend/core/consts/consts.dart';
 import 'package:frontend/core/failures/failure.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:http/http.dart' as http;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'static_data_repository.g.dart';
 
 @riverpod
-StaticDataRepository staticDataRepository(StaticDataRepositoryRef ref) =>
-    StaticDataRepository();
+StaticDataRepository staticDataRepository(Ref ref) => StaticDataRepository();
 
 class StaticDataRepository {
   Future<Either<Failure, Map>> getAvailableGenresAndLanguages(

@@ -30,13 +30,13 @@ class MyApp extends ConsumerStatefulWidget {
 class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(currentUserNotifierProvider);
+    user = ref.watch(currentUserNotifierProvider);
     print("My App $user");
     return MaterialApp(
       title: 'Movie Suggester',
       theme: AppTheme.darkTheme,
       home: user != null
-          ? user.detailsAdded == false
+          ? user!.detailsAdded == false
               ? const UserDetailsPage()
               : const HomePage()
           : const SignUpPage(),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:frontend/core/consts/consts.dart';
 import 'package:frontend/core/failures/failure.dart';
@@ -11,8 +12,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'auth_remote_repository.g.dart';
 
 @riverpod
-AuthRemoteRepository authRemoteRepository(AuthRemoteRepositoryRef ref) =>
-    AuthRemoteRepository();
+AuthRemoteRepository authRemoteRepository(Ref ref) => AuthRemoteRepository();
 
 class AuthRemoteRepository {
   Future<Either<Failure, bool>> signUp(

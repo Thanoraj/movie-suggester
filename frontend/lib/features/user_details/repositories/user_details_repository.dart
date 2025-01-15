@@ -1,4 +1,6 @@
 import 'dart:convert';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:frontend/core/consts/consts.dart';
 import 'package:frontend/core/failures/failure.dart';
@@ -8,8 +10,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'user_details_repository.g.dart';
 
 @riverpod
-UserDetailsRepository userDetailsRepository(UserDetailsRepositoryRef ref) =>
-    UserDetailsRepository();
+UserDetailsRepository userDetailsRepository(Ref ref) => UserDetailsRepository();
 
 class UserDetailsRepository {
   Future<Either<Failure, Map<String, List<String>>>> getUserPreferences(
