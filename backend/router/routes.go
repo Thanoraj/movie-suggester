@@ -53,4 +53,8 @@ func createRoutes(app *fiber.App) {
 	dataRoutes.Get("/languages", controllers.GetLanguageData)
 	dataRoutes.Get("/genres-and-languages", controllers.GetGenreLanguageData)
 
+	movieRoutes := api.Group("/movie")
+	movieRoutes.Use(middlewares.AuthMiddleware)
+	movieRoutes.Get("/search", controllers.SearchMovie)
+
 }

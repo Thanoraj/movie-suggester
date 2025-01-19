@@ -43,3 +43,4 @@ var Languages = []string{
 
 const TempUserTableName = "temp_users"
 const UserTableName = "users"
+const SearchCacheTableName = "search_cache"

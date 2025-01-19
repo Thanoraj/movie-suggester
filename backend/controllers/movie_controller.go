@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/Thanoraj/movie-suggester/backend/models"
 	"github.com/Thanoraj/movie-suggester/backend/services"
 	"github.com/gofiber/fiber/v2"
@@ -53,4 +56,47 @@ func GetMovie(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(movie)
+}
+
+func SearchMovie(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+
+	fmt.Println(userID)
+
+	query := c.Query("query")
+
+	// movies, err := services.SearchMovie(query)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 		"message": "Failed to find movie with the query",
+	// 		"success": false,
+	// 	})
+	// }
+
+	fmt.Println(query)
+	result, _ := services.GetCachedResults(query)
+	fmt.Println(result)
+	if result.Results == nil {
+		movies, err := services.SearchMovie(query)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Failed to find movie with the query",
+				"success": false,
+			})
+		}
+
+		result.CreatedAt = time.Now()
+		result.Results = *movies
+		result.Query = query
+
+		_ = services.SaveResultsToCache(query, *movies)
+
+	} else {
+		fmt.Println("Cached result")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"results": result,
+	})
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/consts/consts.dart';
+import 'package:frontend/features/home/view/widgets/custom_search_bar.dart';
 import 'package:frontend/main.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,15 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController searchController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
   int? selectedIndex;
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,59 +41,10 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
-          SearchAnchor(
-            isFullScreen: false,
-            viewConstraints: const BoxConstraints(maxHeight: 300),
-            builder: (BuildContext context, SearchController controller) {
-              return SearchBar(
-                controller: controller,
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 16.0)),
-                onTap: () {
-                  controller.openView();
-                },
-                onChanged: (_) {
-                  controller.openView();
-                },
-                leading: const Icon(Icons.search),
-                // trailing: <Widget>[
-                //   Tooltip(
-                //     message: 'Change brightness mode',
-                //     child: IconButton(
-                //       isSelected: isDark,
-                //       onPressed: () {
-                //         setState(() {
-                //           isDark = !isDark;
-                //         });
-                //       },
-                //       icon: const Icon(Icons.wb_sunny_outlined),
-                //       selectedIcon: const Icon(Icons.brightness_2_outlined),
-                //     ),
-                //   )
-                // ],
-              );
-            },
-            suggestionsBuilder:
-                (BuildContext context, SearchController controller) {
-              return List<ListTile>.generate(
-                5,
-                (int index) {
-                  final String item = 'item $index';
-                  return ListTile(
-                    title: Text(item),
-                    onTap: () {
-                      setState(() {
-                        controller.closeView(item);
-                      });
-                    },
-                  );
-                },
-              );
-            },
-          ),
+          const CustomSearchBar(),
         ],
       )),
     );

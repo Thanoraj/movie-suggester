@@ -39,3 +39,35 @@ func getMovieDataFromOMDB(name string, year string) (*models.OMDBMovie, error) {
 
 	return &movie, nil
 }
+
+func SearchMovie(name string) (*[]models.OMDBSearchResultMovie, error) {
+
+	url := fmt.Sprintf("https://www.omdbapi.com/?apikey=%s&s=%s", config.OMDB_API_KEY, name)
+	var movie models.OMDBSearchResult
+
+	// Make the GET request
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Check the status code
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("failed to get the movie data")
+	}
+
+	// Read and print the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("failed to get the movie data")
+	}
+	fmt.Println(body)
+
+	if err := json.Unmarshal(body, &movie); err != nil {
+		return nil, errors.New("failed to unmarshal the movie data")
+	}
+
+	return &movie.Search, nil
+
+}

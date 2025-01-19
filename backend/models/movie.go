@@ -38,3 +38,16 @@ type Rating struct {
 	Source string `json:"Source"`
 	Value  string `json:"Value"`
 }
+
+type OMDBSearchResultMovie struct {
+	Title  string `json:"Title"`
+	Year   string `json:"Year"`
+	ImdbID string `json:"imdbID"`
+	Type   string `json:"Type"`
+	Poster string `json:"Poster"`
+}
+type OMDBSearchResult struct {
+	Search       []OMDBSearchResultMovie `json:"Search"`
+	TotalResults string                  `json:"totalResults"`
+	Response     string                  `json:"Response"`
+}

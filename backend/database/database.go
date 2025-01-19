@@ -26,7 +26,7 @@ func InitDB() {
 
 	DB = DB.Debug()
 
-	DB.AutoMigrate(&models.User{}, &models.TempUser{})
+	DB.AutoMigrate(&models.User{}, &models.TempUser{}, &models.SearchCache{})
 
 	fmt.Println("Connected to the database successfully!")
 }
